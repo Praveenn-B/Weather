@@ -1,0 +1,83 @@
+import java.io.BufferedReader;
+	import java.io.IOException;
+	import java.io.InputStreamReader;
+	import java.net.HttpURLConnection;
+	import java.net.URL;
+
+	public class Weather {
+	    private static final String API_KEY = "b6907d289e10d714a6e88b30761fae22";
+	    private static final String BASE_URL = "https://samples.openweathermap.org/data/2.5/forecast/hourly?q=London,us&appid=" + API_KEY;
+
+	    public static void main(String[] args) {
+	        Weather app = new Weather();
+	        app.run();
+	    }
+
+	    private void run() {
+	        try {
+	            BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+	            String choice;
+	            do {
+	                System.out.println("\nChoose an option:");
+	                System.out.println("1. Get weather");
+	                System.out.println("2. Get Wind Speed");
+	                System.out.println("3. Get Pressure");
+	                System.out.println("0. Exit");
+	                System.out.print("Enter your choice (1/2/3/0): ");
+	                choice = reader.readLine();
+
+	                switch (choice) {
+	                    case "1":
+	                        getWeatherData("temp", reader);
+	                        break;
+	                    case "2":
+	                        getWeatherData("wind.speed", reader);
+	                        break;
+	                    case "3":
+	                        getWeatherData("pressure", reader);
+	                        break;
+	                    case "0":
+	                        System.out.println("Terminating the program.");
+	                        break;
+	                    default:
+	                        System.out.println("Invalid choice. Please try again.");
+	                        break;
+	                }
+	            } while (!choice.equals("0"));
+
+	        } catch (IOException e) {
+	            e.printStackTrace();
+	        }
+	    }
+
+	    private void getWeatherData(String parameter, BufferedReader reader) throws IOException {
+	        System.out.print("Enter the date (YYYY-MM-DD): ");
+	        String date = reader.readLine();
+	        String urlString = BASE_URL + "&dt=" + date;
+
+	        URL url = new URL(urlString);
+	        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+	        connection.setRequestMethod("GET");
+
+	        int responseCode = connection.getResponseCode();
+	        if (responseCode == 200) {
+	            BufferedReader apiReader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+	            StringBuilder response = new StringBuilder();
+	            String line;
+	            while ((line = apiReader.readLine()) != null) {
+	                response.append(line);
+	            }
+	            apiReader.close();
+
+	            
+	            System.out.println("Weather data for date " + date + ":");
+	            System.out.println(response.toString());
+
+	        } else {
+	            System.out.println("Failed to fetch weather data. Please check your input and try again.");
+	        }
+	    }
+	}
+
+
+
